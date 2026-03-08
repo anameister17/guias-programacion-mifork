@@ -17,102 +17,42 @@ Por favor, escribe en impersonal las respuestas.
 ## 1. Empecemos un tema sobre control de errores en lenguajes de programación, con algo básico. En C, donde no existen las excepciones, pongamos un ejemplo de una raíz que toma número flotante positivo. Queremos controlar el error si la función recibe un número negativo. El usuario debe ser informado pero desde fuera de la función `raiz` ¿Cómo indicamos ese error?. Enumera dos opciones diferentes de diseñar, poniendo un ejemplo de código de cada una.
 
 ### Respuesta
-// Opción A: Valor centinela
-float raiz(float n) {
-    if (n < 0) return -1.0; // Valor que indica error
-    return sqrt(n);
-}
 
-// Opción B: Paso de un puntero de control (booleano de error)
-float raiz_con_control(float n, int *error) {
-    if (n < 0) {
-        *error = 1; 
-        return 0;
-    }
-    *error = 0;
-    return sqrt(n);
-}
 
 ## 2. Brevemente ¿Qué es una **"excepción"**? ¿Con qué objetivo las usa un programador cuando implementa funciones o cuando las llama?
 
 ### Respuesta
-Una excepción es un evento que ocurre durante la ejecución de un programa que interrumpe el flujo normal de las instrucciones. Es un objeto que encapsula información sobre un error.
 
-Objetivos del programador:
-
-Al implementar: Separar el código de la lógica principal del código de gestión de errores, haciendo el programa más limpio.
-
-Al llamar: Obligar al programa a gestionar situaciones imprevistas (como un archivo que no existe o un número negativo) sin que la aplicación se cierre bruscamente.
 
 ## 3. Reescribe el mismo ejemplo de raiz, pero en Java, metiendo ese método en una clase `Calculadora` y llama a dicho método desde el método `main`, mostrando cómo se puede controlar desde fuera.
 
 ### Respuesta
-public class Calculadora {
-    
-    // El método indica que puede lanzar una excepción
-    public double raiz(double n) throws IllegalArgumentException {
-        if (n < 0) {
-            throw new IllegalArgumentException("No se puede calcular la raíz de un negativo");
-        }
-        return Math.sqrt(n);
-    }
 
-    public static void main(String[] args) {
-        Calculadora calc = new Calculadora();
-        double numero = -5.0;
-
-        try {
-            double resultado = calc.raiz(numero);
-            System.out.println("Resultado: " + resultado);
-        } catch (IllegalArgumentException e) {
-            // Controlamos el error desde fuera de la función
-            System.out.println("Error detectado: " + e.getMessage());
-        }
-    }
-}
 
 ## 4. ¿Qué es **"lanzar"** una excepción? ¿Qué es **"controlar"** o **"capturar"** una excepción? ¿Qué es que se **"propague"** una excepción? ¿Qué le va ocurriendo a las funciones en la pila de llamadas por donde se va propagando la excepción? ¿Las funciones que no la controlan se reanudan después de alguna forma? Explica con el mismo ejemplo anterior en Java de la raíz cuadrada.
 
 ### Respuesta
-Lanzar (throw): Es el acto de crear un objeto de excepción y entregarlo al entorno de ejecución cuando ocurre un error.
 
-Controlar/Capturar (catch): Es interceptar esa excepción en un bloque específico para decidir qué hacer (mostrar un mensaje, cerrar un recurso, etc.).
-
-Propagar: Si una función no captura la excepción, esta "salta" a la función anterior que la llamó en la pila de llamadas (stack).
-
-Pila de llamadas: Las funciones por donde pasa la excepción sin ser capturadas finalizan bruscamente. No se reanudan; se limpian de la memoria hasta encontrar un catch.
-
-Ejemplo: Si main llama a operar() y esta a raiz(-5), y ninguna tiene catch, la excepción sube de raiz a operar (matándola) y de operar a main. Si main no la captura, el programa muere.
 
 ## 5. ¿Qué ventajas tiene frente a C, la **"propagación natural"** de las excepciones a través de la pila (*stack*) de llamadas?
 
 ### Respuesta
-En C, si una función a 10 niveles de profundidad falla, cada una de las 9 funciones intermedias debe tener un if para chequear el error. En Java, las funciones intermedias no necesitan código de error; la excepción "vuela" por encima de ellas hasta el manejador, limpiando el código de lógica innecesaria.
+
 
 ## 6. En orientación a objetos, ¿las excepciones suelen ser objetos? ¿Qué ventajas tiene esto en términos de encapsulación? ¿Podemos entonces crear excepciones personalizadas?
 
 ### Respuesta
-Sí, son objetos (heredan de Throwable).
 
-Ventaja: Permite agrupar errores por tipos (jerarquías). Puedes capturar un IOException genérico o un FileNotFoundException específico.
-
-Personalización: Sí, podemos crear nuestras propias clases extendiendo de Exception para errores específicos de nuestro negocio (ej: SaldoInsuficienteException).
 
 ## 7. En relación con las ventajas de la encapsulación, comparando el ejemplo en C con Java. ¿Qué **información esencial** lleva cualquier **objeto excepción** que es muy útil tener cuando se llega a un manejador?
 
 ### Respuesta
-A diferencia de C (que suele dar un número), un objeto excepción lleva:
 
-Mensaje descriptivo (getMessage()).
-
-Tipo de error (el nombre de la clase).
-
-Traza de la pila (printStackTrace()): el camino exacto (archivo y línea) donde ocurrió el fallo.
 
 ## 8. En Java, sobre el bloque **"try-catch"**, ¿se pueden tener más de un bloque `catch`? ¿cuántos bloques `catch` se ejecutan?
 
 ### Respuesta
-Se pueden tener múltiples bloques catch. Sin embargo, solo se ejecuta uno: el primero que coincida con el tipo de excepción lanzada (por eso los más específicos deben ir arriba).
+
 
 ## 9. Si las excepciones producen rupturas en el código llamador, ¿cómo podemos garantizar que se ejecuta siempre finalmente un código necesario para cierre de ficheros, liberacion de recursos, antes de que continúe propagándose la excepción? Pon un ejemplo en Java con `finally`, tanto con `catch` como sin él.
 
@@ -127,11 +67,7 @@ Se pueden tener múltiples bloques catch. Sin embargo, solo se ejecuta uno: el p
 ## 11. En Java, qué son las excepciones **"controladas"** y las **"no controladas"**? ¿Qué papel juega `RuntimeException`? Pon un ejemplo de excepciones típicas controladas y no controladas que incluso nosotros mismos podríamos usar. Haz dos listas con 3 o 4 ejemplos de situación donde se suele preferir una excepción controlada y donde se suele preferir una excepción no controlada.
 
 ### Respuesta
-Controladas (Checked): Heredan de Exception. El compilador te obliga a gestionarlas (ej: IOException, SQLException).
 
-No Controladas (Unchecked): Heredan de RuntimeException. Errores de programación que no estás obligado a capturar (ej: NullPointerException, IndexOutOfBoundsException).
-
-Uso: Se prefiere controlada para errores recuperables del entorno (red caída) y no controlada para errores de lógica del programador (dividir por cero).
 
 ## 12. ¿Qué es y para qué se usa `throws`? ¿Por qué es alternativa a capturar una excepción controlada?
 
